@@ -33,6 +33,7 @@ class MainWindow : public QMainWindow
 	bool using_custom_pq = false;
 	bool custom_p_entered = false;
 	bool custom_q_entered = false;
+	bool key_generated = false;
 
 	mpz_class custom_p;
 	mpz_class custom_q;

@@ -29,20 +29,27 @@ void
 MainWindow::logRSAValues()
 {
 	logbox.sendLog(std::string("START LOG"), Logger::LogLevel::NOPREFIX);
+
 	logbox.sendLog(
 	    std::string("Q VALUE: " + rsa_engine.getQValue().get_str()));
+
 	logbox.sendLog(
 	    std::string("P VALUE: " + rsa_engine.getPValue().get_str()));
-	logbox.sendLog(std::string("N = P * Q;"));
-	logbox.sendLog(std::string("N = " + rsa_engine.getNValue().get_str()));
-	logbox.sendLog(std::string("PHI = (P - 1) * (Q - 1);"));
+
 	logbox.sendLog(
-	    std::string("PHI = " + rsa_engine.getNValue().get_str()));
+	    std::string("N = P * Q: " + rsa_engine.getNValue().get_str()));
+
+	logbox.sendLog(std::string("PHI = (P-1) * (Q-1): " +
+				   rsa_engine.getNValue().get_str()));
+
 	logbox.sendLog(
-	    std::string("Public Key = " + rsa_engine.getPublicKey().get_str()));
-	logbox.sendLog(std::string("Private Key = " +
-				   rsa_engine.getPrivateKey().get_str()));
+	    std::string("E Value: " + rsa_engine.getDValue().get_str()));
+
+	logbox.sendLog(
+	    std::string("D Value: " + rsa_engine.getEValue().get_str()));
+
 	logbox.sendLog(std::string("END LOG"), Logger::LogLevel::NOPREFIX);
+
 	logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
 }
 
@@ -54,15 +61,21 @@ MainWindow::updateRSAInfo()
 	QString n = QString::fromStdString(rsa_engine.getNValue().get_str());
 	QString phi =
 	    QString::fromStdString(rsa_engine.getPhiValue().get_str());
+	QString d = QString::fromStdString(rsa_engine.getDValue().get_str());
+	QString e = QString::fromStdString(rsa_engine.getEValue().get_str());
 	QString public_key =
-	    QString::fromStdString(rsa_engine.getPublicKey().get_str());
+	    QString::fromStdString(rsa_engine.getDValue().get_str() + " " +
+				   rsa_engine.getNValue().get_str());
 	QString private_key =
-	    QString::fromStdString(rsa_engine.getPrivateKey().get_str());
+	    QString::fromStdString(rsa_engine.getEValue().get_str() + " " +
+				   rsa_engine.getNValue().get_str());
 
 	ui->ProcQValueBox->setText(q);
 	ui->ProcPValueBox->setText(p);
-	ui->ProcPhiValueBox->setText(phi);
 	ui->ProcNValueBox->setText(n);
+	ui->ProcEValueBox->setText(e);
+	ui->ProcDValueBox->setText(d);
+	ui->ProcPhiValueBox->setText(phi);
 	ui->ProcPrivateKeyValueBox->setText(private_key);
 	ui->ProcPublickeyValueBox->setText(public_key);
 }
@@ -72,11 +85,13 @@ MainWindow::clearRSAInfo()
 {
 	ui->ProcQValueBox->clear();
 	ui->ProcPValueBox->clear();
-	ui->ProcPhiValueBox->clear();
+	ui->ProcEValueBox->clear();
+	ui->ProcDValueBox->clear();
 	ui->ProcNValueBox->clear();
+	ui->ProcResultBox->clear();
+	ui->ProcPhiValueBox->clear();
 	ui->ProcPrivateKeyValueBox->clear();
 	ui->ProcPublickeyValueBox->clear();
-	ui->ProcResultBox->clear();
 }
 
 void
@@ -113,7 +128,7 @@ MainWindow::configure_ui()
 void
 MainWindow::on_InputBox0Btn_pressed()
 {
-	if (input_string.empty())
+	if (input_string.empty() || !key_generated)
 		return;
 	if (current_mode == UIMode::EncryptionMode) {
 		if (text_is_encrypted)
@@ -173,11 +188,7 @@ MainWindow::on_KeySizeBtn_128_pressed()
 	ui->KeySizeBtn_512->setChecked(false);
 	ui->KeySizeBtn_2048->setChecked(false);
 
-	clearRSAInfo();
 	rsa_engine.setKeySize(128);
-	rsa_engine.generate_key();
-	updateRSAInfo();
-	logRSAValues();
 }
 
 void
@@ -189,11 +200,7 @@ MainWindow::on_KeySizeBtn_512_pressed()
 	ui->KeySizeBtn_512->setChecked(true);
 	ui->KeySizeBtn_2048->setChecked(false);
 
-	clearRSAInfo();
 	rsa_engine.setKeySize(512);
-	rsa_engine.generate_key();
-	updateRSAInfo();
-	logRSAValues();
 }
 
 void
@@ -205,10 +212,7 @@ MainWindow::on_KeySizeBtn_2048_pressed()
 	ui->KeySizeBtn_512->setChecked(false);
 	ui->KeySizeBtn_2048->setChecked(true);
 
-	clearRSAInfo();
 	rsa_engine.setKeySize(2048);
-	updateRSAInfo();
-	logRSAValues();
 }
 
 void
@@ -220,11 +224,7 @@ MainWindow::on_KeySizeBtn_256_pressed()
 	ui->KeySizeBtn_512->setChecked(false);
 	ui->KeySizeBtn_2048->setChecked(false);
 
-	clearRSAInfo();
 	rsa_engine.setKeySize(256);
-	rsa_engine.generate_key();
-	updateRSAInfo();
-	logRSAValues();
 }
 
 void
@@ -274,11 +274,7 @@ MainWindow::on_KeySizeCustomInput_returnPressed()
 	ui->KeySizeBtn_256->setEnabled(false);
 	ui->KeySizeBtn_2048->setEnabled(false);
 
-	clearRSAInfo();
 	rsa_engine.setKeySize(key_size);
-	rsa_engine.generate_key();
-	updateRSAInfo();
-	logRSAValues();
 }
 
 void
@@ -289,6 +285,7 @@ MainWindow::on_RegenerateKeyButton_pressed()
 	using_custom_pq = false;
 	custom_p_entered = false;
 	custom_q_entered = false;
+	key_generated = true;
 	rsa_engine.generate_key();
 	updateRSAInfo();
 	logRSAValues();
@@ -389,6 +386,7 @@ MainWindow::on_ProcPValueBox_editingFinished()
 		custom_p_entered = true;
 
 		rsa_engine.generate_key(custom_p, custom_q);
+		key_generated = true;
 		updateRSAInfo();
 		logRSAValues();
 	}
@@ -399,11 +397,13 @@ MainWindow::on_ProcQValueBox_editingFinished()
 {
 	if (!using_custom_pq) {
 		ui->ProcPValueBox->clear();
-		ui->ProcPhiValueBox->clear();
 		ui->ProcNValueBox->clear();
+		ui->ProcEValueBox->clear();
+		ui->ProcDValueBox->clear();
+		ui->ProcResultBox->clear();
+		ui->ProcPhiValueBox->clear();
 		ui->ProcPrivateKeyValueBox->clear();
 		ui->ProcPublickeyValueBox->clear();
-		ui->ProcResultBox->clear();
 	}
 
 	if (custom_p_entered && custom_q_entered && using_custom_pq) {
@@ -483,6 +483,7 @@ MainWindow::on_ProcQValueBox_editingFinished()
 		custom_q_entered = true;
 
 		rsa_engine.generate_key(custom_p, custom_q);
+		key_generated = true;
 		updateRSAInfo();
 		logRSAValues();
 	}

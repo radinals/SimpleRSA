@@ -9,33 +9,33 @@
 class SimpleRSA
 {
       private:
-	unsigned int m_primeBits = 128;
-	mpz_class m_p;
-	mpz_class m_q;
-	mpz_class m_n;
-	mpz_class m_phi;
+        unsigned int m_primeBits = 128;
+        mpz_class m_p;
+        mpz_class m_q;
+        mpz_class m_n;
+        mpz_class m_phi;
 
-	mpz_class m_private_key;
-	mpz_class m_public_key;
+	mpz_class m_d;
+	mpz_class m_e;
 
-	mpz_class encryptChar(const mpz_class& plain_char,
-	                      const mpz_class& public_key, const mpz_class& n);
-	mpz_class decryptChar(const mpz_class& cypher_char,
-	                      const mpz_class& private_key, const mpz_class& n);
+	mpz_class encryptChar(const mpz_class& plain_char, const mpz_class& e,
+			      const mpz_class& n);
+	mpz_class decryptChar(const mpz_class& cypher_char, const mpz_class& d,
+			      const mpz_class& n);
 
 	inline mpz_class encryptChar(const mpz_class& plain_char)
 	{
-		return encryptChar(plain_char, m_public_key, m_n);
+		return encryptChar(plain_char, m_e, m_n);
 	}
 
 	inline mpz_class decryptChar(const mpz_class& cypher_char)
 	{
-		return encryptChar(cypher_char, m_private_key, m_n);
+		return encryptChar(cypher_char, m_d, m_n);
 	}
 
 	mpz_class randomNumberGenerator(mp_bitcnt_t bits);
 	mpz_class randomRangeNumberGenerator(const mpz_class& min,
-	                                     const mpz_class& max);
+					     const mpz_class& max);
 
 	unsigned long rand_seed();
 
@@ -44,7 +44,7 @@ class SimpleRSA
 	static mpz_class gcd(mpz_class m, mpz_class n);
 
 	static inline mpz_class eulerTotient(const mpz_class& p,
-	                                     const mpz_class& q)
+					     const mpz_class& q)
 	{
 		return (p - 1) * (q - 1);
 	};
@@ -55,7 +55,7 @@ class SimpleRSA
 	};
 
       public:
-	SimpleRSA(){};
+        SimpleRSA(){};
 
 	// fermat little theorem check
 	bool isFermatPrime(const mpz_class& number, unsigned int k = 0);
@@ -67,22 +67,22 @@ class SimpleRSA
 	inline mpz_class getQValue() { return m_q; };
 	inline mpz_class getNValue() { return m_n; };
 	inline mpz_class getPhiValue() { return m_phi; };
-	inline mpz_class getPrivateKey() { return m_private_key; };
-	inline mpz_class getPublicKey() { return m_public_key; };
+	inline mpz_class getDValue() { return m_d; };
+	inline mpz_class getEValue() { return m_e; };
 
-	RSAText decrypt(RSAText cyphertext, const mpz_class& private_key,
-	                const mpz_class& n);
-	RSAText encrypt(RSAText plaintext, const mpz_class& public_key,
-	                const mpz_class& n);
+	RSAText decrypt(RSAText cyphertext, const mpz_class& d,
+			const mpz_class& n);
+	RSAText encrypt(RSAText plaintext, const mpz_class& e,
+			const mpz_class& n);
 
 	inline RSAText decrypt(RSAText text)
 	{
-		return decrypt(text, getPrivateKey(), getNValue());
+		return decrypt(text, getDValue(), getNValue());
 	}
 
 	inline RSAText encrypt(RSAText text)
 	{
-		return encrypt(text, getPublicKey(), getNValue());
+		return encrypt(text, getEValue(), getNValue());
 	}
 };
 
