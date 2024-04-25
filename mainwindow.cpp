@@ -2,26 +2,22 @@
 
 #include "./ui_mainwindow.h"
 
-#include <QSizePolicy>
+// TODO: Rework the UI Logic
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-	ui->setupUi(this);
+        ui->setupUi(this);
 
 	rsa_engine = SimpleRSA();
 	cypher_text = RSAText();
 	plain_text = RSAText();
-	updateRSAInfo();
-
-	configure_ui();
+	logbox.setInstance(ui->LogTextBox);
 
 	ui->KeySizeBtn_128->setChecked(true);
 	ui->KeySizeBtn_256->setChecked(false);
 	ui->KeySizeBtn_512->setChecked(false);
 	ui->KeySizeBtn_2048->setChecked(false);
-
-	logbox.setInstance(ui->LogTextBox);
 }
 
 MainWindow::~MainWindow()
@@ -30,18 +26,24 @@ MainWindow::~MainWindow()
 }
 
 void
-MainWindow::regenerateKeys()
+MainWindow::logRSAValues()
 {
-	updateRSAInfo();
-}
-
-void
-MainWindow::updateRSAResult()
-{
-	ui->ProcPlaintextValueBox->setText(
-	    QString::fromStdString(plain_text.getString()));
-	ui->ProcCyphertextValueBox->setText(
-	    QString::fromStdString(cypher_text.getString()));
+	logbox.sendLog(std::string("START LOG"), Logger::LogLevel::NOPREFIX);
+	logbox.sendLog(
+	    std::string("Q VALUE: " + rsa_engine.getQValue().get_str()));
+	logbox.sendLog(
+	    std::string("P VALUE: " + rsa_engine.getPValue().get_str()));
+	logbox.sendLog(std::string("N = P * Q;"));
+	logbox.sendLog(std::string("N = " + rsa_engine.getNValue().get_str()));
+	logbox.sendLog(std::string("PHI = (P - 1) * (Q - 1);"));
+	logbox.sendLog(
+	    std::string("PHI = " + rsa_engine.getNValue().get_str()));
+	logbox.sendLog(
+	    std::string("Public Key = " + rsa_engine.getPublicKey().get_str()));
+	logbox.sendLog(std::string("Private Key = " +
+				   rsa_engine.getPrivateKey().get_str()));
+	logbox.sendLog(std::string("END LOG"), Logger::LogLevel::NOPREFIX);
+	logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
 }
 
 void
@@ -74,6 +76,7 @@ MainWindow::clearRSAInfo()
 	ui->ProcNValueBox->clear();
 	ui->ProcPrivateKeyValueBox->clear();
 	ui->ProcPublickeyValueBox->clear();
+	ui->ProcResultBox->clear();
 }
 
 void
@@ -85,12 +88,11 @@ MainWindow::configure_ui()
 		ui->InputBox0Input->setText(
 		    QString::fromStdString(plain_text.getString()));
 
-		ui->KeySizeBtn_128->show();
-		ui->KeySizeBtn_256->show();
-		ui->KeySizeBtn_512->show();
-		ui->KeySizeBtn_2048->show();
-		ui->KeySizeCustomInput->show();
-		ui->KeySizeLabel->show();
+		ui->KeySizeBtn_128->setEnabled(true);
+		ui->KeySizeBtn_256->setEnabled(true);
+		ui->KeySizeBtn_512->setEnabled(true);
+		ui->KeySizeBtn_2048->setEnabled(true);
+		ui->KeySizeCustomInput->setEnabled(true);
 
 	} else if (current_mode == UIMode::DecryptionMode) {
 		ui->ModeToggleBtn->setText("MODE: Decryption");
@@ -98,12 +100,11 @@ MainWindow::configure_ui()
 		ui->InputBox0Input->setText(
 		    QString::fromStdString(cypher_text.getString()));
 
-		ui->KeySizeBtn_128->hide();
-		ui->KeySizeBtn_256->hide();
-		ui->KeySizeBtn_512->hide();
-		ui->KeySizeBtn_2048->hide();
-		ui->KeySizeCustomInput->hide();
-		ui->KeySizeLabel->hide();
+		ui->KeySizeBtn_128->setEnabled(false);
+		ui->KeySizeBtn_256->setEnabled(false);
+		ui->KeySizeBtn_512->setEnabled(false);
+		ui->KeySizeBtn_2048->setEnabled(false);
+		ui->KeySizeCustomInput->setEnabled(false);
 	} else {
 		throw std::runtime_error("Unknown Mode Reached");
 	}
@@ -119,41 +120,46 @@ MainWindow::on_InputBox0Btn_pressed()
 			return;
 		cypher_text = rsa_engine.encrypt(plain_text);
 		text_is_encrypted = true;
-		logbox.sendLog(QString::fromStdString("####"));
-		logbox.sendLog(cypher_text.getAscii());
+
+		logbox.sendLog(std::string("ENCRYPTION RESULT START"),
+			       Logger::LogLevel::NOPREFIX);
+		logbox.sendLog(
+		    std::string("Cypher Text = " + cypher_text.getString()));
+		logbox.sendLog(std::string("Cypher Text (ASCII) = " +
+					   cypher_text.getAscii()));
+		logbox.sendLog(std::string("ENCRYPTION RESULT END"),
+			       Logger::LogLevel::NOPREFIX);
+		logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
+		std::string Output =
+		    plain_text.getString() + " --> " + cypher_text.getString();
+		ui->ProcResultBox->setText(QString::fromStdString(Output));
 	} else if (current_mode == UIMode::DecryptionMode) {
 		if (!text_is_encrypted)
 			return;
 		plain_text = rsa_engine.decrypt(cypher_text);
 		text_is_encrypted = false;
-		logbox.sendLog(plain_text.getAscii());
-		logbox.sendLog(plain_text.getString());
+		logbox.sendLog(std::string("DECRYPTION RESULT START"),
+			       Logger::LogLevel::NOPREFIX);
+		logbox.sendLog(
+		    std::string("Plain Text: " + plain_text.getString()));
+		logbox.sendLog(
+		    std::string("Plain Text (ASCII: " + plain_text.getAscii()));
+		logbox.sendLog(std::string("DECRYPTION RESULT END"),
+			       Logger::LogLevel::NOPREFIX);
+		logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
+		std::string Output =
+		    cypher_text.getString() + " --> " + plain_text.getString();
+		ui->ProcResultBox->setText(QString::fromStdString(Output));
 	} else {
 		throw std::runtime_error("Unknown Mode Reached");
 	}
-	updateRSAResult();
 }
 
 void
 MainWindow::on_InputBox0Input_editingFinished()
 {
-	// do input checking if in DecryptionMode
-	// if (current_mode == UIMode::EncryptionMode) {
-	// }
-	input_string = ui->InputBox0Input->text().toStdString();
-
-	if (input_string.empty()) {
-		ui->ProcPlaintextValueBox->clear();
-		;
-		ui->ProcCyphertextValueBox->clear();
-		;
-	}
-
-	if (current_mode == UIMode::DecryptionMode) {
-		ui->ProcPlaintextValueBox->setReadOnly(true);
-	} else if (current_mode == UIMode::EncryptionMode) {
-		ui->ProcPlaintextValueBox->setReadOnly(false);
-		ui->ProcPlaintextValueBox->setText(ui->InputBox0Input->text());
+	if (current_mode == UIMode::EncryptionMode) {
+		input_string = ui->InputBox0Input->text().toStdString();
 		plain_text = input_string;
 	}
 }
@@ -169,7 +175,9 @@ MainWindow::on_KeySizeBtn_128_pressed()
 
 	clearRSAInfo();
 	rsa_engine.setKeySize(128);
+	rsa_engine.generate_key();
 	updateRSAInfo();
+	logRSAValues();
 }
 
 void
@@ -183,7 +191,9 @@ MainWindow::on_KeySizeBtn_512_pressed()
 
 	clearRSAInfo();
 	rsa_engine.setKeySize(512);
+	rsa_engine.generate_key();
 	updateRSAInfo();
+	logRSAValues();
 }
 
 void
@@ -198,6 +208,7 @@ MainWindow::on_KeySizeBtn_2048_pressed()
 	clearRSAInfo();
 	rsa_engine.setKeySize(2048);
 	updateRSAInfo();
+	logRSAValues();
 }
 
 void
@@ -211,7 +222,9 @@ MainWindow::on_KeySizeBtn_256_pressed()
 
 	clearRSAInfo();
 	rsa_engine.setKeySize(256);
+	rsa_engine.generate_key();
 	updateRSAInfo();
+	logRSAValues();
 }
 
 void
@@ -219,9 +232,11 @@ MainWindow::on_ModeToggleBtn_pressed()
 {
 	if (current_mode == UIMode::DecryptionMode) {
 		current_mode = UIMode::EncryptionMode;
+		ui->InputBox0Input->setReadOnly(false);
 	} else if (current_mode == UIMode::EncryptionMode) {
 		if (!text_is_encrypted)
 			return;
+		ui->InputBox0Input->setReadOnly(true);
 		current_mode = UIMode::DecryptionMode;
 	}
 	configure_ui();
@@ -246,7 +261,6 @@ MainWindow::on_KeySizeCustomInput_returnPressed()
 	try {
 		key_size = std::stoul(input);
 	} catch (...) {
-		// TODO: SHOW ERROR
 		ui->KeySizeCustomInput->clear();
 		ui->KeySizeBtn_128->setEnabled(true);
 		ui->KeySizeBtn_512->setEnabled(true);
@@ -262,7 +276,9 @@ MainWindow::on_KeySizeCustomInput_returnPressed()
 
 	clearRSAInfo();
 	rsa_engine.setKeySize(key_size);
+	rsa_engine.generate_key();
 	updateRSAInfo();
+	logRSAValues();
 }
 
 void
@@ -270,6 +286,204 @@ MainWindow::on_RegenerateKeyButton_pressed()
 {
 	clearRSAInfo();
 	text_is_encrypted = false;
+	using_custom_pq = false;
+	custom_p_entered = false;
+	custom_q_entered = false;
 	rsa_engine.generate_key();
 	updateRSAInfo();
+	logRSAValues();
+}
+
+void
+MainWindow::on_ClearLog_clicked()
+{
+	ui->LogTextBox->clear();
+}
+
+void
+MainWindow::on_ProcPValueBox_editingFinished()
+{
+	if (!using_custom_pq) {
+		ui->ProcQValueBox->clear();
+		ui->ProcPhiValueBox->clear();
+		ui->ProcNValueBox->clear();
+		ui->ProcPrivateKeyValueBox->clear();
+		ui->ProcPublickeyValueBox->clear();
+		ui->ProcResultBox->clear();
+	}
+
+	if (custom_p_entered && custom_q_entered && using_custom_pq) {
+		custom_p_entered = false;
+		custom_q_entered = false;
+		using_custom_pq = false;
+	}
+
+	if (!custom_q_entered && !custom_p_entered && !using_custom_pq) {
+		try {
+			custom_p = ui->ProcPValueBox->text().toStdString();
+		} catch (...) {
+			ui->ProcPValueBox->clear();
+			return;
+		}
+
+		if (!rsa_engine.isFermatPrime(custom_p)) {
+			logbox.sendLog(std::string("P is not a prime number!"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcPValueBox->clear();
+			return;
+		}
+
+		if (custom_p <= 10) {
+			logbox.sendLog(std::string("P Needs to be > 10"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcPValueBox->clear();
+			return;
+		}
+
+		custom_p_entered = true;
+		using_custom_pq = true;
+
+		return;
+	}
+
+	if (custom_q_entered && !custom_p_entered && using_custom_pq) {
+		try {
+			custom_p = ui->ProcPValueBox->text().toStdString();
+		} catch (...) {
+			ui->ProcPValueBox->clear();
+			return;
+		}
+
+		if (!rsa_engine.isFermatPrime(custom_p)) {
+			logbox.sendLog(std::string("P is not a prime number!"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcPValueBox->clear();
+			return;
+		}
+
+		if (custom_p <= 10) {
+			logbox.sendLog(std::string("P Needs to be > 10"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcPValueBox->clear();
+			return;
+		}
+
+		if (custom_p == custom_q) {
+			logbox.sendLog(std::string("P and Q must be different"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcPValueBox->clear();
+			return;
+		}
+
+		text_is_encrypted = false;
+		custom_p_entered = true;
+
+		rsa_engine.generate_key(custom_p, custom_q);
+		updateRSAInfo();
+		logRSAValues();
+	}
+}
+
+void
+MainWindow::on_ProcQValueBox_editingFinished()
+{
+	if (!using_custom_pq) {
+		ui->ProcPValueBox->clear();
+		ui->ProcPhiValueBox->clear();
+		ui->ProcNValueBox->clear();
+		ui->ProcPrivateKeyValueBox->clear();
+		ui->ProcPublickeyValueBox->clear();
+		ui->ProcResultBox->clear();
+	}
+
+	if (custom_p_entered && custom_q_entered && using_custom_pq) {
+		custom_p_entered = false;
+		custom_q_entered = false;
+		using_custom_pq = false;
+	}
+
+	if (!custom_q_entered && !custom_p_entered && !using_custom_pq) {
+		try {
+			custom_q = ui->ProcQValueBox->text().toStdString();
+		} catch (...) {
+			ui->ProcQValueBox->clear();
+			return;
+		}
+
+		if (!rsa_engine.isFermatPrime(custom_q)) {
+			logbox.sendLog(std::string("Q is not a prime number!"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcQValueBox->clear();
+			return;
+		}
+
+		if (custom_q <= 10) {
+			logbox.sendLog(std::string("Q Needs to be > 10"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcQValueBox->clear();
+			return;
+		}
+
+		custom_q_entered = true;
+		using_custom_pq = true;
+
+		return;
+	}
+
+	if (custom_p_entered && !custom_q_entered && using_custom_pq) {
+		try {
+			custom_q = ui->ProcQValueBox->text().toStdString();
+		} catch (...) {
+			ui->ProcQValueBox->clear();
+			return;
+		}
+
+		if (!rsa_engine.isFermatPrime(custom_q)) {
+			logbox.sendLog(std::string("Q is not a prime number!"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcQValueBox->clear();
+			return;
+		}
+
+		if (custom_q <= 10) {
+			logbox.sendLog(std::string("Q Needs to be > 10"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcQValueBox->clear();
+			return;
+		}
+
+		if (custom_p == custom_q) {
+			logbox.sendLog(std::string("P and Q must be different"),
+				       Logger::LogLevel::ERROR);
+			logbox.sendLog(std::string(""),
+				       Logger::LogLevel::NOPREFIX);
+			ui->ProcQValueBox->clear();
+			return;
+		}
+
+		text_is_encrypted = false;
+		custom_q_entered = true;
+
+		rsa_engine.generate_key(custom_p, custom_q);
+		updateRSAInfo();
+		logRSAValues();
+	}
 }

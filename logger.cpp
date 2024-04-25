@@ -13,39 +13,32 @@ Logger::setStringColor(const QString &string, Colors color)
 	switch (color) {
 	case Colors::WHITE:
 		formatted = QString("<span style=\" color:#ffffff; \">" +
-		                    string + "</span>");
+				    string + "</span>");
 		break;
 	case Colors::RED:
 		formatted = QString("<span style=\" color:#C0392B; \">" +
-		                    string + "</span>");
+				    string + "</span>");
 		break;
 	case Colors::GREEN:
 		formatted = QString("<span style=\" color:#27AE60; \">" +
-		                    string + "</span>");
+				    string + "</span>");
 		break;
 	case Colors::BLUE:
 		formatted = QString("<span style=\" color:#2E86C1; \">" +
-		                    string + "</span>");
+				    string + "</span>");
 		break;
 	case Colors::YELLOW:
 		formatted = QString("<span style=\" color:#F1C40F; \">" +
-		                    string + "</span>");
+				    string + "</span>");
 		break;
 
 	default:
 		formatted = QString("<span style=\" color:#000000; \">" +
-		                    string + "</span>");
+				    string + "</span>");
 		break;
 	}
 
 	return formatted;
-}
-
-void
-Logger::sendLog(const std::string &log, LogLevel level, Colors color)
-{
-	QString str = QString::fromStdString(log);
-	sendLog(str, level, color);
 }
 
 void
@@ -67,10 +60,15 @@ Logger::sendLog(const QString &log, LogLevel level, Colors color)
 			color = Colors::RED;
 		sendString("ERROR: " + log, color);
 		break;
-	default:
+	case LogLevel::NORMAL:
 		if (color == Colors::NONE)
 			color = Colors::BLACK;
 		sendString("LOG: " + log, color);
+		break;
+	default:
+		if (color == Colors::NONE)
+			color = Colors::BLACK;
+		sendString(log, color);
 		break;
 	}
 }
