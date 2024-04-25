@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>SimpleRSA</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -689,6 +689,9 @@
           <pointsize>11</pointsize>
          </font>
         </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -719,6 +722,9 @@
           <family>Liberation Sans</family>
           <pointsize>11</pointsize>
          </font>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -834,6 +840,9 @@
           <family>Liberation Sans</family>
           <pointsize>11</pointsize>
          </font>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
