@@ -303,6 +303,8 @@ MainWindow::on_ProcPValueBox_editingFinished()
 	if (!using_custom_pq) {
 		ui->ProcQValueBox->clear();
 		ui->ProcPhiValueBox->clear();
+		ui->ProcEValueBox->clear();
+		ui->ProcDValueBox->clear();
 		ui->ProcNValueBox->clear();
 		ui->ProcPrivateKeyValueBox->clear();
 		ui->ProcPublickeyValueBox->clear();
