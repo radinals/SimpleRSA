@@ -2,9 +2,11 @@
 
 #include "./ui_mainwindow.h"
 
+#include <QFile>
+
 // TODO: Rework the UI Logic
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
         ui->setupUi(this);
@@ -13,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 	cypher_text = RSAText();
 	plain_text = RSAText();
 	logbox.setInstance(ui->LogTextBox);
+	loadStyleSheet(lightStyleSheet);
 
 	ui->KeySizeBtn_128->setChecked(true);
 	ui->KeySizeBtn_256->setChecked(false);
@@ -488,5 +491,30 @@ MainWindow::on_ProcQValueBox_editingFinished()
 		key_generated = true;
 		updateRSAInfo();
 		logRSAValues();
+	}
+}
+
+void
+MainWindow::loadStyleSheet(const QString& filename)
+{
+	QFile file(filename);
+	file.open(QFile::ReadOnly);
+	QString styleSheet = QLatin1String(file.readAll());
+
+	this->setStyleSheet(styleSheet);
+}
+
+void
+MainWindow::on_DarkModeBtn_clicked()
+{
+	switch (ui_style) {
+	case UIStyle::DarkMode:
+		loadStyleSheet(lightStyleSheet);
+		ui_style = UIStyle::LightMode;
+		return;
+	case UIStyle::LightMode:
+		loadStyleSheet(darkStyleSheet);
+		ui_style = UIStyle::DarkMode;
+		return;
 	}
 }

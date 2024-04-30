@@ -26,6 +26,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         simplersa.h simplersa.cpp
         rsatext.h rsatext.cpp
         logger.h logger.cpp
+        resource.qrc
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET SimpleRSA APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

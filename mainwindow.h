@@ -24,9 +24,19 @@ class MainWindow : public QMainWindow
                 DecryptionMode
         };
 
-        UIMode current_mode = UIMode::EncryptionMode;
+	enum class UIStyle {
+		LightMode,
+		DarkMode,
+	};
 
-        std::string input_string;
+	UIStyle ui_style = UIStyle::LightMode;
+
+	const QString darkStyleSheet = ":/style/darkmode.qss";
+	const QString lightStyleSheet = ":/style/lightmode.qss";
+
+	UIMode current_mode = UIMode::EncryptionMode;
+
+	std::string input_string;
 
 	bool custom_key_size = false;
 	bool text_is_encrypted = false;
@@ -81,6 +91,10 @@ class MainWindow : public QMainWindow
         void on_ProcPValueBox_editingFinished();
 
         void on_ProcQValueBox_editingFinished();
+
+        void on_DarkModeBtn_clicked();
+
+        void loadStyleSheet(const QString &filename);
 
       private:
         Ui::MainWindow *ui;

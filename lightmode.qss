@@ -1,0 +1,54 @@
+QMainWindow {
+  background : #d9d9d9;
+  color : #202020;
+}
+
+QLabel {
+  color : #202020;
+}
+
+QPushButton {
+  border-width: 1px;
+  border-style: solid;
+  color : #202020;
+  border-color : #202020;
+  background : #c9c9c9;
+}
+
+#ClearLog,
+#DarkModeBtn {
+  color : #202020;
+  border-style: transparent;
+  border-color : #d9d9d9;
+  background : #d9d9d9;
+}
+
+QLineEdit {
+  border-width: 1px;
+  border-style: solid;
+  color : #202020;
+  border-color : #202020;
+  background : #f9f9f9;
+}
+
+#ProcDValueBox,
+#ProcEValueBox,
+#ProcNValueBox,
+#ProcPhiValueBox,
+#ProcPrivateKeyValueBox,
+#ProcPublickeyValueBox,
+#ProcResultBox {
+  border-width: 1px;
+  border-style: solid;
+  color : #202020;
+  border-color : #202020;
+  background : #d9d9d9;
+}
+
+QRadioButton {
+  color : #202020;
+}
+
+QTextEdit {
+  background : #eFeFeF
+}
