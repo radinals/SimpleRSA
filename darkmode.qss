@@ -1,23 +1,23 @@
 QMainWindow {
   background : #383838;
-  color : #fffeee;
+  color : #1ed41e;
 }
 
 QLabel {
-  color : #fffeee;
+  color : #1ed41e;
 }
 
 QPushButton {
   border-width: 1px;
   border-style: solid;
-  color : #fffeee;
-  border-color: #fffeee;
+  color : #1ed41e;
+  border-color: #1ed41e;
   background : #404040;
 }
 
 #ClearLog,
 #DarkModeBtn {
-  color : #fffeee;
+  color : #1ed41e;
   border-style: transparent;
   border-color : #383838;
   background : #383838;
@@ -26,8 +26,8 @@ QPushButton {
 QLineEdit {
   border-width: 1px;
   border-style: solid;
-  color : #fffeee;
-  border-color : #fffeee;
+  color : #1ed41e;
+  border-color : #1ed41e;
   background : #505050;
 }
 
@@ -40,15 +40,43 @@ QLineEdit {
 #ProcResultBox {
   border-width: 1px;
   border-style: solid;
-  color : #fffeee;
-  border-color : #fffeee;
+  color : #1ed41e;
+  border-color : #1ed41e;
   background : #383838;
 }
 
+QPushButton:pressed {
+  background : #bFbFbF;
+}
+
+QPushButton:flat {
+    border: none
+}
+
 QRadioButton {
-  color : #fffeee;
+  color : #1ed41e;
 }
 
 QTextEdit {
   background : #eFeFeF
+}
+
+QRadioButton::indicator {
+    width:                  10px;
+    height:                 10px;
+    border-radius:          7px;
+}
+
+QRadioButton::indicator:checked {
+    background: #303030;
+    border-color: #1ed41e;
+    border-width: 1px;
+    border-style: solid;
+}
+
+QRadioButton::indicator:unchecked {
+    background: #eFeFeF;
+    border-color: #909090;
+    border-width: 1px;
+    border-style: solid;
 }
