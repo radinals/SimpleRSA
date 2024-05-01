@@ -29,7 +29,13 @@ class MainWindow : public QMainWindow
 		DarkMode,
 	};
 
+	enum class UILogMode {
+		HIDDEN,
+		SHOWN
+	};
+
 	UIStyle ui_style = UIStyle::LightMode;
+	UILogMode ui_logmode = UILogMode::HIDDEN;
 
 	const QString darkStyleSheet = ":/style/darkmode.qss";
 	const QString lightStyleSheet = ":/style/lightmode.qss";
@@ -95,6 +101,8 @@ class MainWindow : public QMainWindow
         void on_DarkModeBtn_clicked();
 
         void loadStyleSheet(const QString &filename);
+
+        void on_ToggleLog_clicked();
 
       private:
         Ui::MainWindow *ui;

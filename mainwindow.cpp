@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget* parent)
 	logbox.setInstance(ui->LogTextBox);
 	loadStyleSheet(lightStyleSheet);
 
+	ui->ClearLog->hide();
+	ui->LogTextBox->hide();
+
 	ui->KeySizeBtn_128->setChecked(true);
 	ui->KeySizeBtn_256->setChecked(false);
 	ui->KeySizeBtn_512->setChecked(false);
@@ -105,6 +108,17 @@ MainWindow::configure_ui()
 		ui->InputBox0Btn->setText("Encrypt");
 		ui->InputBox0Input->setText(
 		    QString::fromStdString(plain_text.getString()));
+		ui->ProcPValueBox->setEnabled(true);
+		ui->ProcQValueBox->setEnabled(true);
+		ui->ProcPValueBox->setReadOnly(false);
+		ui->ProcQValueBox->setReadOnly(false);
+		ui->RegenerateKeyButton->show();
+
+		ui->KeySizeBtn_128->show();
+		ui->KeySizeBtn_256->show();
+		ui->KeySizeBtn_512->show();
+		ui->KeySizeBtn_2048->show();
+		ui->KeySizeCustomInput->show();
 
 		ui->KeySizeBtn_128->setEnabled(true);
 		ui->KeySizeBtn_256->setEnabled(true);
@@ -118,11 +132,24 @@ MainWindow::configure_ui()
 		ui->InputBox0Input->setText(
 		    QString::fromStdString(cypher_text.getString()));
 
+		ui->ProcPValueBox->setEnabled(false);
+		ui->ProcQValueBox->setEnabled(false);
+		ui->RegenerateKeyButton->hide();
+
+		ui->ProcPValueBox->setReadOnly(true);
+		ui->ProcQValueBox->setReadOnly(true);
+
 		ui->KeySizeBtn_128->setEnabled(false);
 		ui->KeySizeBtn_256->setEnabled(false);
 		ui->KeySizeBtn_512->setEnabled(false);
 		ui->KeySizeBtn_2048->setEnabled(false);
 		ui->KeySizeCustomInput->setEnabled(false);
+
+		ui->KeySizeBtn_128->hide();
+		ui->KeySizeBtn_256->hide();
+		ui->KeySizeBtn_512->hide();
+		ui->KeySizeBtn_2048->hide();
+		ui->KeySizeCustomInput->hide();
 	} else {
 		throw std::runtime_error("Unknown Mode Reached");
 	}
@@ -303,6 +330,10 @@ MainWindow::on_ClearLog_clicked()
 void
 MainWindow::on_ProcPValueBox_editingFinished()
 {
+	if (!ui->ProcQValueBox->isModified() &&
+	    !ui->ProcPValueBox->isModified())
+		return;
+
 	if (!using_custom_pq) {
 		ui->ProcQValueBox->clear();
 		ui->ProcPhiValueBox->clear();
@@ -400,6 +431,10 @@ MainWindow::on_ProcPValueBox_editingFinished()
 void
 MainWindow::on_ProcQValueBox_editingFinished()
 {
+	if (!ui->ProcQValueBox->isModified() &&
+	    !ui->ProcPValueBox->isModified())
+		return;
+
 	if (!using_custom_pq) {
 		ui->ProcPValueBox->clear();
 		ui->ProcNValueBox->clear();
@@ -515,6 +550,23 @@ MainWindow::on_DarkModeBtn_clicked()
 	case UIStyle::LightMode:
 		loadStyleSheet(darkStyleSheet);
 		ui_style = UIStyle::DarkMode;
+		return;
+	}
+}
+
+void
+MainWindow::on_ToggleLog_clicked()
+{
+	switch (ui_logmode) {
+	case UILogMode::HIDDEN:
+		ui->ClearLog->show();
+		ui->LogTextBox->show();
+		ui_logmode = UILogMode::SHOWN;
+		return;
+	case UILogMode::SHOWN:
+		ui->ClearLog->hide();
+		ui->LogTextBox->hide();
+		ui_logmode = UILogMode::HIDDEN;
 		return;
 	}
 }
