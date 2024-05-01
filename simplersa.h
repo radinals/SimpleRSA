@@ -10,28 +10,13 @@ class SimpleRSA
 {
       private:
         unsigned int m_primeBits = 128;
-        mpz_class m_p;
-        mpz_class m_q;
-        mpz_class m_n;
-        mpz_class m_phi;
 
+	mpz_class m_p;
+	mpz_class m_q;
+	mpz_class m_n;
+	mpz_class m_phi;
 	mpz_class m_d;
 	mpz_class m_e;
-
-	mpz_class encryptChar(const mpz_class& plain_char, const mpz_class& e,
-			      const mpz_class& n);
-	mpz_class decryptChar(const mpz_class& cypher_char, const mpz_class& d,
-			      const mpz_class& n);
-
-	inline mpz_class encryptChar(const mpz_class& plain_char)
-	{
-		return encryptChar(plain_char, m_e, m_n);
-	}
-
-	inline mpz_class decryptChar(const mpz_class& cypher_char)
-	{
-		return encryptChar(cypher_char, m_d, m_n);
-	}
 
 	mpz_class randomNumberGenerator(mp_bitcnt_t bits);
 	mpz_class randomRangeNumberGenerator(const mpz_class& min,
@@ -103,7 +88,7 @@ namespace SimpleRSAException
 	class PublicKeyNotPrime : std::exception
 	{
 	      public:
-		const char* what = "PublicKeyNotPrimeNotPrime";
+		const char* what = "PublicKeyNotPrime";
 	};
 
 } // namespace SimpleRSAException
