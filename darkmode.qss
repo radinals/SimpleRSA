@@ -45,6 +45,10 @@ QLineEdit {
   background : #383838;
 }
 
+#ToggleLog {
+  border-style: transparent
+}
+
 QPushButton:pressed {
   background : #bFbFbF;
 }
@@ -68,14 +72,14 @@ QRadioButton::indicator {
 }
 
 QRadioButton::indicator:checked {
-    background: #303030;
+    background: #1ed41e;
     border-color: #1ed41e;
     border-width: 1px;
     border-style: solid;
 }
 
 QRadioButton::indicator:unchecked {
-    background: #eFeFeF;
+    background: #383838;
     border-color: #909090;
     border-width: 1px;
     border-style: solid;

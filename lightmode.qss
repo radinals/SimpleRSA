@@ -15,8 +15,18 @@ QPushButton {
   background : #c9c9c9;
 }
 
-#ClearLog,
+#ToggleLog {
+  border-style: transparent
+}
+
 #DarkModeBtn {
+  color : #4e22fc;
+  border-style: transparent;
+  border-color : #d9d9d9;
+  background : #d9d9d9;
+}
+
+#ClearLog {
   color : #202020;
   border-style: transparent;
   border-color : #d9d9d9;
@@ -69,7 +79,7 @@ QRadioButton::indicator {
 
 QRadioButton::indicator:checked {
     background: #202020;
-    border-color: #d9d9d9;
+    border-color: #202020;
     border-width: 1px;
     border-style: solid;
 }
