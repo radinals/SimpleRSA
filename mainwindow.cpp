@@ -164,6 +164,10 @@ MainWindow::on_InputBox0Btn_pressed()
 		logbox.sendLog(std::string("ENCRYPTION RESULT START"),
 			       Logger::LogLevel::NOPREFIX);
 		logbox.sendLog(
+		    std::string("E: " + rsa_engine.getEValue().get_str()));
+		logbox.sendLog(
+		    std::string("N: " + rsa_engine.getNValue().get_str()));
+		logbox.sendLog(
 		    std::string("Cypher Text = " + cypher_text.getString()));
 		logbox.sendLog(std::string("Cypher Text (ASCII) = " +
 					   cypher_text.getAscii()));
@@ -180,6 +184,10 @@ MainWindow::on_InputBox0Btn_pressed()
 		text_is_encrypted = false;
 		logbox.sendLog(std::string("DECRYPTION RESULT START"),
 			       Logger::LogLevel::NOPREFIX);
+		logbox.sendLog(
+		    std::string("D: " + rsa_engine.getDValue().get_str()));
+		logbox.sendLog(
+		    std::string("N: " + rsa_engine.getNValue().get_str()));
 		logbox.sendLog(
 		    std::string("Plain Text: " + plain_text.getString()));
 		logbox.sendLog(
