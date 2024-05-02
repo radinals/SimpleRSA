@@ -45,8 +45,8 @@ MainWindow::logRSAValues()
 	logbox.sendLog(
 	    std::string("N = P * Q: " + rsa_engine.getNValue().get_str()));
 
-	logbox.sendLog(std::string("PHI = (P-1) * (Q-1): " +
-				   rsa_engine.getNValue().get_str()));
+	logbox.sendLog(std::string("M = (P-1) * (Q-1): " +
+				   rsa_engine.getMValue().get_str()));
 
 	logbox.sendLog(
 	    std::string("E Value: " + rsa_engine.getDValue().get_str()));
@@ -65,8 +65,7 @@ MainWindow::updateRSAInfo()
 	QString p = QString::fromStdString(rsa_engine.getPValue().get_str());
 	QString q = QString::fromStdString(rsa_engine.getQValue().get_str());
 	QString n = QString::fromStdString(rsa_engine.getNValue().get_str());
-	QString phi =
-	    QString::fromStdString(rsa_engine.getPhiValue().get_str());
+	QString m = QString::fromStdString(rsa_engine.getMValue().get_str());
 	QString d = QString::fromStdString(rsa_engine.getDValue().get_str());
 	QString e = QString::fromStdString(rsa_engine.getEValue().get_str());
 	QString public_key =
@@ -81,9 +80,7 @@ MainWindow::updateRSAInfo()
 	ui->ProcNValueBox->setText(n);
 	ui->ProcEValueBox->setText(e);
 	ui->ProcDValueBox->setText(d);
-	ui->ProcPhiValueBox->setText(phi);
-	ui->ProcPrivateKeyValueBox->setText(private_key);
-	ui->ProcPublickeyValueBox->setText(public_key);
+	ui->ProcPhiValueBox->setText(m);
 }
 
 void
@@ -96,8 +93,6 @@ MainWindow::clearRSAInfo()
 	ui->ProcNValueBox->clear();
 	ui->ProcResultBox->clear();
 	ui->ProcPhiValueBox->clear();
-	ui->ProcPrivateKeyValueBox->clear();
-	ui->ProcPublickeyValueBox->clear();
 }
 
 void
@@ -340,8 +335,6 @@ MainWindow::on_ProcPValueBox_editingFinished()
 		ui->ProcEValueBox->clear();
 		ui->ProcDValueBox->clear();
 		ui->ProcNValueBox->clear();
-		ui->ProcPrivateKeyValueBox->clear();
-		ui->ProcPublickeyValueBox->clear();
 		ui->ProcResultBox->clear();
 	}
 
@@ -442,8 +435,6 @@ MainWindow::on_ProcQValueBox_editingFinished()
 		ui->ProcDValueBox->clear();
 		ui->ProcResultBox->clear();
 		ui->ProcPhiValueBox->clear();
-		ui->ProcPrivateKeyValueBox->clear();
-		ui->ProcPublickeyValueBox->clear();
 	}
 
 	if (custom_p_entered && custom_q_entered && using_custom_pq) {

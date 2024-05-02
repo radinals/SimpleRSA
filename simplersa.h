@@ -14,7 +14,7 @@ class SimpleRSA
 	mpz_class m_p;
 	mpz_class m_q;
 	mpz_class m_n;
-	mpz_class m_phi;
+	mpz_class m_m;
 	mpz_class m_d;
 	mpz_class m_e;
 
@@ -51,7 +51,7 @@ class SimpleRSA
 	inline mpz_class getPValue() { return m_p; };
 	inline mpz_class getQValue() { return m_q; };
 	inline mpz_class getNValue() { return m_n; };
-	inline mpz_class getPhiValue() { return m_phi; };
+	inline mpz_class getMValue() { return m_m; };
 	inline mpz_class getDValue() { return m_d; };
 	inline mpz_class getEValue() { return m_e; };
 

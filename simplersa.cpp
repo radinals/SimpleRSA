@@ -112,18 +112,18 @@ SimpleRSA::generate_key(const mpz_class &p, const mpz_class &q)
 	m_q = q;
 
 	m_n = (p * q);
-	m_phi = eulerTotient(p, q);
+	m_m = eulerTotient(p, q);
 
 	m_e = 127;
-	while (m_e > 1 && m_e < m_phi) {
-		if (isCoprime(m_e, m_phi)) {
+	while (m_e > 1 && m_e < m_m) {
+		if (isCoprime(m_e, m_m)) {
 			break;
 		} else {
 			m_e++;
 		}
 	}
 
-	mpz_invert(m_d.get_mpz_t(), m_e.get_mpz_t(), m_phi.get_mpz_t());
+	mpz_invert(m_d.get_mpz_t(), m_e.get_mpz_t(), m_m.get_mpz_t());
 }
 
 void
@@ -136,13 +136,14 @@ SimpleRSA::generate_key()
 	} while ((m_p == m_q));
 
 	m_n = (m_p * m_q);
-	m_phi = eulerTotient(m_p, m_q);
+	m_m = eulerTotient(m_p, m_q);
 
 	do {
 		m_e = randomPrime();
-	} while (m_e > 1 && m_e < m_phi && !isCoprime(m_e, m_phi));
+	} while (m_e > 1 && m_e < m_m && !isCoprime(m_e, m_m));
 
-	mpz_invert(m_d.get_mpz_t(), m_e.get_mpz_t(), m_phi.get_mpz_t());
+	// d = e x === 1 mod m
+	mpz_invert(m_d.get_mpz_t(), m_e.get_mpz_t(), m_m.get_mpz_t());
 }
 
 RSAText
