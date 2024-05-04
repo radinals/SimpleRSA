@@ -174,8 +174,9 @@ MainWindow::on_InputBox0Btn_pressed()
 		logbox.sendLog(std::string("ENCRYPTION RESULT END"),
 			       Logger::LogLevel::NOPREFIX);
 		logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
-		std::string Output =
-		    plain_text.getString() + " --> " + cypher_text.getString();
+		std::string Output = plain_text.getString() + " --> " +
+				     cypher_text.getString() + " (" +
+				     cypher_text.getAscii(",") + ")";
 		ui->ProcResultBox->setText(QString::fromStdString(Output));
 	} else if (current_mode == UIMode::DecryptionMode) {
 		if (!text_is_encrypted)
@@ -195,8 +196,9 @@ MainWindow::on_InputBox0Btn_pressed()
 		logbox.sendLog(std::string("DECRYPTION RESULT END"),
 			       Logger::LogLevel::NOPREFIX);
 		logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
-		std::string Output =
-		    cypher_text.getString() + " --> " + plain_text.getString();
+		std::string Output = cypher_text.getString() + " --> " +
+				     plain_text.getString() + " (" +
+				     plain_text.getAscii(",") + ")";
 		ui->ProcResultBox->setText(QString::fromStdString(Output));
 	} else {
 		throw std::runtime_error("Unknown Mode Reached");
