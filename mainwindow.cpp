@@ -569,3 +569,15 @@ MainWindow::on_ToggleLog_clicked()
 		return;
 	}
 }
+
+void
+MainWindow::on_ClearBtn_clicked()
+{
+	clearRSAInfo();
+}
+
+void
+MainWindow::on_ExitBtn_clicked()
+{
+	exit(0);
+}

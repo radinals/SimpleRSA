@@ -45,10 +45,6 @@ QLineEdit {
   background : #383838;
 }
 
-#ToggleLog {
-  border-style: transparent
-}
-
 QPushButton:pressed {
   background : #bFbFbF;
 }

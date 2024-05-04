@@ -15,10 +15,6 @@ QPushButton {
   background : #c9c9c9;
 }
 
-#ToggleLog {
-  border-style: transparent
-}
-
 #DarkModeBtn {
   color : #4e22fc;
   border-style: transparent;

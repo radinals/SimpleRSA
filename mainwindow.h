@@ -74,8 +74,6 @@ class MainWindow : public QMainWindow
       private slots:
         void on_InputBox0Btn_pressed();
 
-        // void on_InputBox0Input_returnPressed();
-
         void on_KeySizeBtn_128_pressed();
 
         void on_KeySizeBtn_512_pressed();
@@ -103,6 +101,10 @@ class MainWindow : public QMainWindow
         void loadStyleSheet(const QString &filename);
 
         void on_ToggleLog_clicked();
+
+        void on_ClearBtn_clicked();
+
+        void on_ExitBtn_clicked();
 
       private:
         Ui::MainWindow *ui;
