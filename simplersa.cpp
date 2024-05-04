@@ -123,6 +123,7 @@ SimpleRSA::generate_key(const mpz_class &p, const mpz_class &q)
 		}
 	}
 
+	// d = e x === 1 mod m
 	mpz_invert(m_d.get_mpz_t(), m_e.get_mpz_t(), m_m.get_mpz_t());
 }
 
