@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget* parent)
 	rsa_engine = SimpleRSA();
 	cypher_text = RSAText();
 	plain_text = RSAText();
+
 	logbox.setInstance(ui->LogTextBox);
 	loadStyleSheet(lightStyleSheet);
 
@@ -24,6 +25,8 @@ MainWindow::MainWindow(QWidget* parent)
 	ui->KeySizeBtn_256->setChecked(false);
 	ui->KeySizeBtn_512->setChecked(false);
 	ui->KeySizeBtn_2048->setChecked(false);
+
+	configure_ui();
 }
 
 MainWindow::~MainWindow()
@@ -101,6 +104,7 @@ MainWindow::configure_ui()
 	if (current_mode == UIMode::EncryptionMode) {
 		ui->ModeToggleBtn->setText("MODE: Encryption");
 		ui->InputBox0Btn->setText("Encrypt");
+		ui->InputBox0Input->setPlaceholderText("Enter Plaintext...");
 		ui->InputBox0Input->setText(
 		    QString::fromStdString(plain_text.getString()));
 		ui->ProcPValueBox->setEnabled(true);
@@ -123,6 +127,7 @@ MainWindow::configure_ui()
 
 	} else if (current_mode == UIMode::DecryptionMode) {
 		ui->ModeToggleBtn->setText("MODE: Decryption");
+		ui->InputBox0Input->setPlaceholderText("Enter Cyphertext...");
 		ui->InputBox0Btn->setText("Decrypt");
 		ui->InputBox0Input->setText(
 		    QString::fromStdString(cypher_text.getString()));
@@ -575,7 +580,23 @@ MainWindow::on_ToggleLog_clicked()
 void
 MainWindow::on_ClearBtn_clicked()
 {
+	ui->InputBox0Input->clear();
+	plain_text = "";
+	cypher_text = "";
+	rsa_engine.setKeySize(128);
+	ui->KeySizeBtn_128->setChecked(true);
+	ui->KeySizeBtn_256->setChecked(false);
+	ui->KeySizeBtn_512->setChecked(false);
+	ui->KeySizeBtn_2048->setChecked(false);
+	custom_key_size = false;
+	text_is_encrypted = false;
+	using_custom_pq = false;
+	custom_p_entered = false;
+	custom_q_entered = false;
+	key_generated = false;
+	current_mode = UIMode::EncryptionMode;
 	clearRSAInfo();
+	configure_ui();
 }
 
 void

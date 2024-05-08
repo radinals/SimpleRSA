@@ -17,7 +17,7 @@ SimpleRSA::rand_seed()
 
 mpz_class
 SimpleRSA::randomRangeNumberGenerator(const mpz_class &min,
-				      const mpz_class &max)
+                                      const mpz_class &max)
 {
 	mpz_class rand_num;
 	gmp_randclass rand(gmp_randinit_default);
@@ -60,7 +60,7 @@ SimpleRSA::isFermatPrime(const mpz_class &number, unsigned int k)
 
 		// ( a^(number-1) ) % (number - 1)
 		mpz_powm(num.get_mpz_t(), a.get_mpz_t(),
-			 mpz_class(number - 1).get_mpz_t(), number.get_mpz_t());
+		         mpz_class(number - 1).get_mpz_t(), number.get_mpz_t());
 
 		if (num != 1) {
 			return false;
@@ -153,11 +153,11 @@ SimpleRSA::decrypt(RSAText text, const mpz_class &d, const mpz_class &n)
 	auto convert = [&](mpz_class &ch) {
 		mpz_class result;
 		mpz_powm(result.get_mpz_t(), ch.get_mpz_t(), d.get_mpz_t(),
-			 n.get_mpz_t());
+		         n.get_mpz_t());
 		ch = result;
 	};
 	std::for_each(text.m_vecstring.begin(), text.m_vecstring.end(),
-		      convert);
+	              convert);
 	return text;
 }
 
@@ -167,11 +167,11 @@ SimpleRSA::encrypt(RSAText text, const mpz_class &e, const mpz_class &n)
 	auto convert = [&](mpz_class &ch) {
 		mpz_class result;
 		mpz_powm(result.get_mpz_t(), ch.get_mpz_t(), e.get_mpz_t(),
-			 n.get_mpz_t());
+		         n.get_mpz_t());
 		ch = result;
 	};
 
 	std::for_each(text.m_vecstring.begin(), text.m_vecstring.end(),
-		      convert);
+	              convert);
 	return text;
 }
