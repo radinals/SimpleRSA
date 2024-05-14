@@ -39,6 +39,24 @@ MainWindow::logRSAValues()
 {
 	logbox.sendLog(std::string("START LOG"), Logger::LogLevel::NOPREFIX);
 
+	if (using_custom_keys) {
+		if (current_mode == UIMode::DecryptionMode) {
+			logbox.sendLog(
+			    std::string("D Value: " + custom_d.get_str()));
+		} else {
+			logbox.sendLog(
+			    std::string("E Value: " + custom_e.get_str()));
+		}
+
+		logbox.sendLog(std::string("N Value: " + custom_n.get_str()));
+
+		logbox.sendLog(std::string("END LOG"),
+			       Logger::LogLevel::NOPREFIX);
+		logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
+
+		return;
+	}
+
 	logbox.sendLog(
 	    std::string("Q VALUE: " + rsa_engine.getQValue().get_str()));
 
@@ -84,11 +102,23 @@ MainWindow::updateRSAInfo()
 	ui->ProcEValueBox->setText(e);
 	ui->ProcDValueBox->setText(d);
 	ui->ProcPhiValueBox->setText(m);
+
+	if (current_mode == UIMode::DecryptionMode) {
+		ui->ProcKeyLabel->setText("PRIVATE KEY");
+		ui->ProcKeyFront->setText(d);
+	} else {
+		ui->ProcKeyLabel->setText("PUBLIC KEY");
+		ui->ProcKeyFront->setText(e);
+	}
+
+	ui->ProcKeyBack->setText(n);
 }
 
 void
 MainWindow::clearRSAInfo()
 {
+	ui->ProcKeyFront->clear();
+	ui->ProcKeyBack->clear();
 	ui->ProcQValueBox->clear();
 	ui->ProcPValueBox->clear();
 	ui->ProcEValueBox->clear();
@@ -102,6 +132,7 @@ void
 MainWindow::configure_ui()
 {
 	if (current_mode == UIMode::EncryptionMode) {
+		ui->ProcKeyLabel->setText("PUBLIC KEY");
 		ui->ModeToggleBtn->setText("MODE: Encryption");
 		ui->InputBox0Btn->setText("Encrypt");
 		ui->InputBox0Input->setPlaceholderText("Enter Plaintext...");
@@ -126,6 +157,7 @@ MainWindow::configure_ui()
 		ui->KeySizeCustomInput->setEnabled(true);
 
 	} else if (current_mode == UIMode::DecryptionMode) {
+		ui->ProcKeyLabel->setText("PRIVATE KEY");
 		ui->ModeToggleBtn->setText("MODE: Decryption");
 		ui->InputBox0Input->setPlaceholderText("Enter Cyphertext...");
 		ui->InputBox0Btn->setText("Decrypt");
@@ -158,49 +190,106 @@ MainWindow::configure_ui()
 void
 MainWindow::on_InputBox0Btn_pressed()
 {
-	if (input_string.empty() || !key_generated)
+	if (input_string.empty()) {
 		return;
+	}
+
+	if (!using_custom_keys && !key_generated) {
+		return;
+	}
+
+	if (current_mode == UIMode::EncryptionMode && text_is_encrypted &&
+	    using_custom_keys) {
+		text_is_encrypted = false;
+	}
+
 	if (current_mode == UIMode::EncryptionMode) {
 		if (text_is_encrypted)
 			return;
-		cypher_text = rsa_engine.encrypt(plain_text);
+
+		if (using_custom_keys && has_back && has_front) {
+			cypher_text =
+			    rsa_engine.encrypt(plain_text, custom_e, custom_n);
+		} else if (key_generated) {
+			cypher_text = rsa_engine.encrypt(plain_text);
+		} else {
+			std::runtime_error("No Available Keys");
+		}
+
 		text_is_encrypted = true;
+
+		if (using_custom_keys) {
+			logbox.sendLog(
+			    std::string("E Value: " + custom_e.get_str()));
+
+			logbox.sendLog(
+			    std::string("N Value: " + custom_n.get_str()));
+
+		} else {
+			logbox.sendLog(std::string(
+			    "E: " + rsa_engine.getEValue().get_str()));
+			logbox.sendLog(std::string(
+			    "N: " + rsa_engine.getNValue().get_str()));
+		}
 
 		logbox.sendLog(std::string("ENCRYPTION RESULT START"),
 			       Logger::LogLevel::NOPREFIX);
-		logbox.sendLog(
-		    std::string("E: " + rsa_engine.getEValue().get_str()));
-		logbox.sendLog(
-		    std::string("N: " + rsa_engine.getNValue().get_str()));
+
 		logbox.sendLog(
 		    std::string("Cypher Text = " + cypher_text.getString()));
+
 		logbox.sendLog(std::string("Cypher Text (ASCII) = " +
 					   cypher_text.getAscii()));
+
 		logbox.sendLog(std::string("ENCRYPTION RESULT END"),
 			       Logger::LogLevel::NOPREFIX);
+
 		logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
+
 		std::string Output = plain_text.getString() + " --> " +
 				     cypher_text.getString() + " (" +
 				     cypher_text.getAscii(",") + ")";
+
 		ui->ProcResultBox->setText(QString::fromStdString(Output));
 	} else if (current_mode == UIMode::DecryptionMode) {
 		if (!text_is_encrypted)
 			return;
-		plain_text = rsa_engine.decrypt(cypher_text);
+		if (using_custom_keys && has_back && has_front) {
+			plain_text =
+			    rsa_engine.decrypt(cypher_text, custom_d, custom_n);
+		} else if (key_generated) {
+			plain_text = rsa_engine.decrypt(cypher_text);
+		} else {
+			std::runtime_error("No Available Keys");
+		}
 		text_is_encrypted = false;
-		logbox.sendLog(std::string("DECRYPTION RESULT START"),
-			       Logger::LogLevel::NOPREFIX);
-		logbox.sendLog(
-		    std::string("D: " + rsa_engine.getDValue().get_str()));
-		logbox.sendLog(
-		    std::string("N: " + rsa_engine.getNValue().get_str()));
+
+		if (using_custom_keys) {
+			logbox.sendLog(
+			    std::string("D Value: " + custom_d.get_str()));
+
+			logbox.sendLog(
+			    std::string("N Value: " + custom_n.get_str()));
+
+		} else {
+			logbox.sendLog(std::string("DECRYPTION RESULT START"),
+				       Logger::LogLevel::NOPREFIX);
+			logbox.sendLog(std::string(
+			    "D: " + rsa_engine.getDValue().get_str()));
+			logbox.sendLog(std::string(
+			    "N: " + rsa_engine.getNValue().get_str()));
+		}
 		logbox.sendLog(
 		    std::string("Plain Text: " + plain_text.getString()));
+
 		logbox.sendLog(
 		    std::string("Plain Text (ASCII: " + plain_text.getAscii()));
+
 		logbox.sendLog(std::string("DECRYPTION RESULT END"),
 			       Logger::LogLevel::NOPREFIX);
+
 		logbox.sendLog(std::string(""), Logger::LogLevel::NOPREFIX);
+
 		std::string Output = cypher_text.getString() + " --> " +
 				     plain_text.getString() + " (" +
 				     plain_text.getAscii(",") + ")";
@@ -214,6 +303,10 @@ void
 MainWindow::on_InputBox0Input_editingFinished()
 {
 	if (current_mode == UIMode::EncryptionMode) {
+		if (ui->InputBox0Btn->text().toStdString() !=
+		    plain_text.getString()) {
+			text_is_encrypted = false;
+		}
 		input_string = ui->InputBox0Input->text().toStdString();
 		plain_text = input_string;
 	}
@@ -273,11 +366,25 @@ MainWindow::on_ModeToggleBtn_pressed()
 	if (current_mode == UIMode::DecryptionMode) {
 		current_mode = UIMode::EncryptionMode;
 		ui->InputBox0Input->setReadOnly(false);
+		ui->ProcKeyLabel->setText("PRIVATE KEY");
 	} else if (current_mode == UIMode::EncryptionMode) {
 		if (!text_is_encrypted)
 			return;
 		ui->InputBox0Input->setReadOnly(true);
+		ui->ProcKeyLabel->setText("PUBLIC KEY");
 		current_mode = UIMode::DecryptionMode;
+	}
+
+	if (using_custom_keys) {
+		custom_d = 0;
+		custom_e = 0;
+		custom_n = 0;
+		ui->ProcKeyFront->clear();
+		ui->ProcKeyBack->clear();
+		ui->ProcResultBox->clear();
+		using_custom_keys = false;
+		has_front = false;
+		has_back = false;
 	}
 	configure_ui();
 }
@@ -340,9 +447,14 @@ MainWindow::on_ClearLog_clicked()
 void
 MainWindow::on_ProcPValueBox_editingFinished()
 {
-	if (!ui->ProcQValueBox->isModified() &&
-	    !ui->ProcPValueBox->isModified())
+	if (using_custom_keys) {
 		return;
+	}
+
+	if (!ui->ProcQValueBox->isModified() &&
+	    !ui->ProcPValueBox->isModified()) {
+		return;
+	}
 
 	if (!using_custom_pq) {
 		ui->ProcQValueBox->clear();
@@ -439,9 +551,14 @@ MainWindow::on_ProcPValueBox_editingFinished()
 void
 MainWindow::on_ProcQValueBox_editingFinished()
 {
-	if (!ui->ProcQValueBox->isModified() &&
-	    !ui->ProcPValueBox->isModified())
+	if (using_custom_keys) {
 		return;
+	}
+
+	if (!ui->ProcQValueBox->isModified() &&
+	    !ui->ProcPValueBox->isModified()) {
+		return;
+	}
 
 	if (!using_custom_pq) {
 		ui->ProcPValueBox->clear();
@@ -588,6 +705,14 @@ MainWindow::on_ClearBtn_clicked()
 	ui->KeySizeBtn_256->setChecked(false);
 	ui->KeySizeBtn_512->setChecked(false);
 	ui->KeySizeBtn_2048->setChecked(false);
+	custom_d = 0;
+	custom_e = 0;
+	custom_n = 0;
+	custom_p = 0;
+	custom_q = 0;
+	using_custom_keys = false;
+	has_back = false;
+	has_front = false;
 	custom_key_size = false;
 	text_is_encrypted = false;
 	using_custom_pq = false;
@@ -603,4 +728,46 @@ void
 MainWindow::on_ExitBtn_clicked()
 {
 	exit(0);
+}
+
+void
+MainWindow::on_ProcKeyFront_editingFinished()
+{
+	if (ui->ProcKeyFront->text().isEmpty()) {
+		return;
+	}
+
+	try {
+		if (current_mode == UIMode::EncryptionMode) {
+			custom_e = ui->ProcKeyFront->text().toStdString();
+		} else if (current_mode == UIMode::DecryptionMode) {
+			custom_d = ui->ProcKeyFront->text().toStdString();
+		}
+	} catch (...) {
+		ui->ProcKeyFront->clear();
+		has_front = false;
+		return;
+	}
+
+	using_custom_keys = true;
+	has_front = true;
+}
+
+void
+MainWindow::on_ProcKeyBack_editingFinished()
+{
+	if (ui->ProcKeyBack->text().isEmpty()) {
+		return;
+	}
+
+	try {
+		custom_n = ui->ProcKeyBack->text().toStdString();
+	} catch (...) {
+		ui->ProcKeyBack->clear();
+		has_back = false;
+		return;
+	}
+
+	using_custom_keys = true;
+	has_back = true;
 }

@@ -34,13 +34,25 @@ class MainWindow : public QMainWindow
 		SHOWN
 	};
 
+	enum class CustomKeyUIMode {
+		HasNone,
+		HasCustomDValueOnly,
+		HasCustomEValueOnly,
+		HasCustomDValueAndNValue,
+		HasCustomEValueAndNValue,
+		HasCustomNValueOnly,
+	};
+
+	bool using_custom_keys = false;
+	bool has_front = false;
+	bool has_back = false;
+
 	UIStyle ui_style = UIStyle::LightMode;
 	UILogMode ui_logmode = UILogMode::HIDDEN;
+	UIMode current_mode = UIMode::EncryptionMode;
 
 	const QString darkStyleSheet = ":/style/darkmode.qss";
 	const QString lightStyleSheet = ":/style/lightmode.qss";
-
-	UIMode current_mode = UIMode::EncryptionMode;
 
 	std::string input_string;
 
@@ -53,6 +65,10 @@ class MainWindow : public QMainWindow
 
 	mpz_class custom_p;
 	mpz_class custom_q;
+
+	mpz_class custom_n;
+	mpz_class custom_d;
+	mpz_class custom_e;
 
 	RSAText plain_text;
 	RSAText cypher_text;
@@ -105,6 +121,10 @@ class MainWindow : public QMainWindow
         void on_ClearBtn_clicked();
 
         void on_ExitBtn_clicked();
+
+        void on_ProcKeyFront_editingFinished();
+
+        void on_ProcKeyBack_editingFinished();
 
       private:
         Ui::MainWindow *ui;
