@@ -13,6 +13,7 @@ QPushButton {
   color : #202020;
   border-color : #202020;
   background : #c9c9c9;
+  border-radius: 20px;
 }
 
 #DarkModeBtn {
@@ -33,8 +34,7 @@ QLineEdit {
   border-width: 1px;
   border-style: solid;
   color : #202020;
-  border-color : #202020;
-  background : #f9f9f9;
+  border-radius: 20px;
 }
 
 #ProcDValueBox,
