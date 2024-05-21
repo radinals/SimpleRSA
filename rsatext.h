@@ -13,9 +13,11 @@ class RSAText
 	RSAText(){};
 	RSAText(const std::string &string);
 	std::string getAscii(std::string separator = "");
+	std::string getAscii(char separator = ' ');
 	std::string operator=(const std::string &string);
 	std::string getString();
 
+	inline void clear() { m_vecstring.clear(); }
 	inline void operator+=(mpz_class ch) { m_vecstring.push_back(ch); }
 	inline void operator+=(unsigned int ch) { m_vecstring.push_back((ch)); }
 };

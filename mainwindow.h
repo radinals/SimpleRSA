@@ -19,112 +19,94 @@ class MainWindow : public QMainWindow
         Q_OBJECT
 
       private:
-        enum class UIMode {
-                EncryptionMode,
-                DecryptionMode
+        enum class KeySize {
+                KS_128,
+                KS_256,
+                KS_512,
+                KS_1024,
         };
 
-	enum class UIStyle {
-		LightMode,
-		DarkMode,
+	enum class CustomKeyInputState {
+		HasNoValue,
+		HasPValue,
+		HasQValue,
+		HasPandQ,
 	};
 
-	enum class UILogMode {
-		HIDDEN,
-		SHOWN
-	};
-
-	enum class CustomKeyUIMode {
+	enum class EncryptionModeState {
 		HasNone,
-		HasCustomDValueOnly,
-		HasCustomEValueOnly,
-		HasCustomDValueAndNValue,
-		HasCustomEValueAndNValue,
-		HasCustomNValueOnly,
+		HasPublicKey,
+		HasPlaintext,
+		HasPublicKeyAndPlaintext,
 	};
 
-	bool using_custom_keys = false;
-	bool has_front = false;
-	bool has_back = false;
+	enum class DecryptionModeState {
+		HasNone,
+		HasPrivateKey,
+		HasCyphertext,
+		HasPrivateKeyAndCyphertext,
+	};
 
-	UIStyle ui_style = UIStyle::LightMode;
-	UILogMode ui_logmode = UILogMode::HIDDEN;
-	UIMode current_mode = UIMode::EncryptionMode;
+	const char m_KeyDelimiter = '|';
+	const char m_CypherDelimiter = ';';
 
-	const QString darkStyleSheet = ":/style/darkmode.qss";
-	const QString lightStyleSheet = ":/style/lightmode.qss";
+	KeySize m_keysize = KeySize::KS_128;
 
-	std::string input_string;
+	DecryptionModeState m_decryption_mode_state =
+	    DecryptionModeState::HasNone;
 
-	bool custom_key_size = false;
-	bool text_is_encrypted = false;
-	bool using_custom_pq = false;
-	bool custom_p_entered = false;
-	bool custom_q_entered = false;
-	bool key_generated = false;
+	EncryptionModeState m_encryption_mode_state =
+	    EncryptionModeState::HasNone;
 
-	mpz_class custom_p;
-	mpz_class custom_q;
+	CustomKeyInputState m_custom_key_state =
+	    CustomKeyInputState::HasNoValue;
 
-	mpz_class custom_n;
-	mpz_class custom_d;
-	mpz_class custom_e;
+	mpz_class m_custom_key_p_value;
+	mpz_class m_custom_key_q_value;
 
-	RSAText plain_text;
-	RSAText cypher_text;
-	SimpleRSA rsa_engine;
-	Logger logbox;
+	RSAText m_Encryption_plaintext;
+	RSAPublicKey m_Encryption_public_key;
 
-	void configure_ui();
-	void configure_keysize_btn();
-	void updateRSAInfo();
-	void logRSAValues();
-	void clearRSAInfo();
-	void toggleLogView();
-	void toggleInfoView();
+	RSAText m_Decryption_cyphertext;
+	RSAPrivateKey m_Decryption_private_key;
 
       public:
         MainWindow(QWidget *parent = nullptr);
         ~MainWindow();
 
       private slots:
-        void on_InputBox0Btn_pressed();
 
-        void on_KeySizeBtn_128_pressed();
+        void on_AGK_SetKeySize1024_clicked();
 
-        void on_KeySizeBtn_512_pressed();
+        void on_AGK_SetKeySize512_clicked();
 
-        void on_KeySizeBtn_2048_pressed();
+        void on_AGK_SetKeySize256_clicked();
 
-        void on_ModeToggleBtn_pressed();
+        void on_AGK_SetKeySize128_clicked();
 
-        void on_KeySizeCustomInput_returnPressed();
+        void on_AGK_GenerateKeyBtn_clicked();
 
-        void on_InputBox0Input_editingFinished();
+        void on_CKI_PValInput_editingFinished();
 
-        void on_KeySizeBtn_256_pressed();
+        void on_CKI_QValInput_editingFinished();
 
-        void on_RegenerateKeyButton_pressed();
+        void on_CKI_GenerateKeyBtn_clicked();
 
-        void on_ClearLog_clicked();
+        void on_E_PublicKeyInput_editingFinished();
 
-        void on_ProcPValueBox_editingFinished();
+        void on_E_PlaintextInput_textChanged();
 
-        void on_ProcQValueBox_editingFinished();
+        void on_E_EncryptBtn_clicked();
 
-        void on_DarkModeBtn_clicked();
+        void on_D_PrivateKeyInput_editingFinished();
 
-        void loadStyleSheet(const QString &filename);
+        void on_D_CyphertextInput_textChanged();
 
-        void on_ToggleLog_clicked();
+        void on_D_DecryptBtn_clicked();
 
-        void on_ClearBtn_clicked();
+        void on_ResetBtn_clicked();
 
         void on_ExitBtn_clicked();
-
-        void on_ProcKeyFront_editingFinished();
-
-        void on_ProcKeyBack_editingFinished();
 
       private:
         Ui::MainWindow *ui;

@@ -5,28 +5,30 @@
 
 #include <exception>
 #include <gmpxx.h>
+#include <utility>
+
+struct RSAPrivateKey {
+	mpz_class m_d;
+	mpz_class m_n;
+};
+
+struct RSAPublicKey {
+	mpz_class m_e;
+	mpz_class m_n;
+};
 
 class SimpleRSA
 {
       private:
-        unsigned int m_primeBits = 128;
+        static mpz_class randomNumberGenerator(mp_bitcnt_t bits);
+        static mpz_class randomRangeNumberGenerator(const mpz_class& min,
+                                                    const mpz_class& max);
 
-	mpz_class m_p;
-	mpz_class m_q;
-	mpz_class m_n;
-	mpz_class m_m;
-	mpz_class m_d;
-	mpz_class m_e;
+        static unsigned long rand_seed();
 
-	mpz_class randomNumberGenerator(mp_bitcnt_t bits);
-	mpz_class randomRangeNumberGenerator(const mpz_class& min,
-					     const mpz_class& max);
+        static mpz_class randomPrime(unsigned int bits);
 
-	unsigned long rand_seed();
-
-	mpz_class randomPrime();
-
-	static mpz_class gcd(mpz_class m, mpz_class n);
+        static mpz_class gcd(mpz_class m, mpz_class n);
 
 	static inline mpz_class eulerTotient(const mpz_class& p,
 					     const mpz_class& q)
@@ -40,34 +42,30 @@ class SimpleRSA
 	};
 
       public:
-        SimpleRSA(){};
+        // fermat little theorem check
+        static bool isFermatPrime(const mpz_class& number, unsigned int k = 0);
 
-	// fermat little theorem check
-	bool isFermatPrime(const mpz_class& number, unsigned int k = 0);
-	void generate_key();
-	void generate_key(const mpz_class& p, const mpz_class& q);
-	void setKeySize(unsigned int keysize) { m_primeBits = keysize; };
+	static std::pair<RSAPublicKey, RSAPrivateKey> generate_key(
+	    unsigned int bits = 128);
 
-	inline mpz_class getPValue() { return m_p; };
-	inline mpz_class getQValue() { return m_q; };
-	inline mpz_class getNValue() { return m_n; };
-	inline mpz_class getMValue() { return m_m; };
-	inline mpz_class getDValue() { return m_d; };
-	inline mpz_class getEValue() { return m_e; };
+	static std::pair<RSAPublicKey, RSAPrivateKey> generate_key(
+	    const mpz_class& p, const mpz_class& q);
 
-	RSAText decrypt(RSAText cyphertext, const mpz_class& d,
-			const mpz_class& n);
-	RSAText encrypt(RSAText plaintext, const mpz_class& e,
-			const mpz_class& n);
+	static RSAText decrypt(RSAText cyphertext, const mpz_class& d,
+			       const mpz_class& n);
+	static RSAText encrypt(RSAText plaintext, const mpz_class& e,
+			       const mpz_class& n);
 
-	inline RSAText decrypt(RSAText text)
+	static inline RSAText decrypt(RSAText cyphertext,
+				      const RSAPrivateKey& private_key)
 	{
-		return decrypt(text, getDValue(), getNValue());
+		return decrypt(cyphertext, private_key.m_d, private_key.m_n);
 	}
 
-	inline RSAText encrypt(RSAText text)
+	static inline RSAText encrypt(RSAText plaintext,
+				      const RSAPublicKey& public_key)
 	{
-		return encrypt(text, getEValue(), getNValue());
+		return encrypt(plaintext, public_key.m_e, public_key.m_n);
 	}
 };
 
@@ -89,6 +87,12 @@ namespace SimpleRSAException
 	{
 	      public:
 		const char* what = "PublicKeyNotPrime";
+	};
+
+	class NoModularInverseFound : std::exception
+	{
+	      public:
+		const char* what = "NoModularInverseFound";
 	};
 
 } // namespace SimpleRSAException

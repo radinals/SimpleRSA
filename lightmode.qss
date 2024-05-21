@@ -16,20 +16,6 @@ QPushButton {
   border-radius: 20px;
 }
 
-#DarkModeBtn {
-  color : #1ed41e;
-  border-style: transparent;
-  border-color : #fafafa;
-  background : #fafafa;
-}
-
-#ClearLog {
-  color : #202020;
-  border-style: transparent;
-  border-color : #fafafa;
-  background : #fafafa;
-}
-
 QLineEdit {
   border-width: 1px;
   border-style: solid;
@@ -37,18 +23,26 @@ QLineEdit {
   border-radius: 20px;
 }
 
-#ProcDValueBox,
-#ProcEValueBox,
-#ProcNValueBox,
-#ProcPhiValueBox,
-#ProcPrivateKeyValueBox,
-#ProcPublickeyValueBox,
-#ProcResultBox {
-  border-width: 1px;
-  border-style: solid;
-  color : #202020;
-  border-color : #202020;
-  background : #fafafa;
+#ProgramNameLabel {
+    color : #2f8930;
+}
+
+#HINT_0,
+#HINT_1,
+#HINT_2,
+#HINT_3 {
+    color : #370d7e;
+}
+
+#D_PlaintextOut,
+#E_CyphertextOut,
+#CKI_PublicKeyOut,
+#CKI_PrivateKeyOut,
+#AGK_PublicKeyOut,
+#AGK_PrivateKeyOut {
+    border: none;
+    background : #fafafa;
+    color : #2f8930;
 }
 
 QPushButton:pressed {
@@ -56,7 +50,7 @@ QPushButton:pressed {
 }
 
 QPushButton:flat {
-    border: none
+    border: none;
 }
 
 QRadioButton {

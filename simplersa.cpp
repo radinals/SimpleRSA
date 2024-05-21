@@ -17,7 +17,7 @@ SimpleRSA::rand_seed()
 
 mpz_class
 SimpleRSA::randomRangeNumberGenerator(const mpz_class &min,
-                                      const mpz_class &max)
+				      const mpz_class &max)
 {
 	mpz_class rand_num;
 	gmp_randclass rand(gmp_randinit_default);
@@ -60,7 +60,7 @@ SimpleRSA::isFermatPrime(const mpz_class &number, unsigned int k)
 
 		// ( a^(number-1) ) % (number - 1)
 		mpz_powm(num.get_mpz_t(), a.get_mpz_t(),
-		         mpz_class(number - 1).get_mpz_t(), number.get_mpz_t());
+			 mpz_class(number - 1).get_mpz_t(), number.get_mpz_t());
 
 		if (num != 1) {
 			return false;
@@ -82,18 +82,18 @@ SimpleRSA::gcd(mpz_class m, mpz_class n)
 }
 
 mpz_class
-SimpleRSA::randomPrime()
+SimpleRSA::randomPrime(unsigned int bits)
 {
 	mpz_class rand_prime;
 
 	do {
-		rand_prime = randomNumberGenerator(m_primeBits);
+		rand_prime = randomNumberGenerator(bits);
 	} while (!isFermatPrime(rand_prime, 500));
 
 	return rand_prime;
 }
 
-void
+std::pair<RSAPublicKey, RSAPrivateKey>
 SimpleRSA::generate_key(const mpz_class &p, const mpz_class &q)
 {
 	if ((!isFermatPrime(p))) {
@@ -108,43 +108,53 @@ SimpleRSA::generate_key(const mpz_class &p, const mpz_class &q)
 		throw std::invalid_argument("PQIsTheSame");
 	}
 
-	m_p = p;
-	m_q = q;
+	std::pair<RSAPublicKey, RSAPrivateKey> keys;
+	mpz_class m, n;
 
-	m_n = (p * q);
-	m_m = eulerTotient(p, q);
+	keys.second.m_n = keys.first.m_n = n = (p * q);
+	m = eulerTotient(p, q);
 
-	m_e = 127;
-	while (m_e > 1 && m_e < m_m) {
-		if (isCoprime(m_e, m_m)) {
+	keys.first.m_e = 127;
+	while (keys.first.m_e > 1 && keys.first.m_e < m) {
+		if (isCoprime(keys.first.m_e, m)) {
 			break;
 		} else {
-			m_e++;
+			keys.first.m_e++;
 		}
 	}
 
 	// d = e x === 1 mod m
-	mpz_invert(m_d.get_mpz_t(), m_e.get_mpz_t(), m_m.get_mpz_t());
+	mpz_invert(keys.second.m_d.get_mpz_t(), keys.first.m_e.get_mpz_t(),
+		   m.get_mpz_t());
+
+	return keys;
 }
 
-void
-SimpleRSA::generate_key()
+std::pair<RSAPublicKey, RSAPrivateKey>
+SimpleRSA::generate_key(unsigned int bits)
 {
+	std::pair<RSAPublicKey, RSAPrivateKey> keys;
+	mpz_class m, n, p, q;
+
 	// p != q
 	do {
-		m_p = randomPrime();
-		m_q = randomPrime();
-	} while ((m_p == m_q));
+		p = randomPrime(bits);
+		q = randomPrime(bits);
+	} while ((p == q));
 
-	m_n = (m_p * m_q);
-	m_m = eulerTotient(m_p, m_q);
+	keys.second.m_n = keys.first.m_n = n = (p * q);
+	m = eulerTotient(p, q);
 
 	do {
-		m_e = randomPrime();
-	} while (m_e > 1 && m_e < m_m && !isCoprime(m_e, m_m));
+		keys.first.m_e = randomPrime(bits);
+	} while (keys.first.m_e > 1 && keys.first.m_e < m &&
+		 !isCoprime(keys.first.m_e, m));
 
 	// d = e x === 1 mod m
-	mpz_invert(m_d.get_mpz_t(), m_e.get_mpz_t(), m_m.get_mpz_t());
+	mpz_invert(keys.second.m_d.get_mpz_t(), keys.first.m_e.get_mpz_t(),
+		   m.get_mpz_t());
+
+	return keys;
 }
 
 RSAText
@@ -152,12 +162,13 @@ SimpleRSA::decrypt(RSAText text, const mpz_class &d, const mpz_class &n)
 {
 	auto convert = [&](mpz_class &ch) {
 		mpz_class result;
+		// (ch ^ n) mod n
 		mpz_powm(result.get_mpz_t(), ch.get_mpz_t(), d.get_mpz_t(),
-		         n.get_mpz_t());
+			 n.get_mpz_t());
 		ch = result;
 	};
 	std::for_each(text.m_vecstring.begin(), text.m_vecstring.end(),
-	              convert);
+		      convert);
 	return text;
 }
 
@@ -166,12 +177,13 @@ SimpleRSA::encrypt(RSAText text, const mpz_class &e, const mpz_class &n)
 {
 	auto convert = [&](mpz_class &ch) {
 		mpz_class result;
+		// (ch ^ n) mod n
 		mpz_powm(result.get_mpz_t(), ch.get_mpz_t(), e.get_mpz_t(),
-		         n.get_mpz_t());
+			 n.get_mpz_t());
 		ch = result;
 	};
 
 	std::for_each(text.m_vecstring.begin(), text.m_vecstring.end(),
-	              convert);
+		      convert);
 	return text;
 }

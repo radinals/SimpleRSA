@@ -35,7 +35,17 @@ RSAText::getAscii(std::string separator)
 {
 	std::string tmp;
 	for (const mpz_class &ch : m_vecstring) {
-		tmp += std::to_string(ch.get_ui()) + separator;
+		tmp += ch.get_str() + separator;
+	}
+	return tmp;
+};
+
+std::string
+RSAText::getAscii(char separator)
+{
+	std::string tmp;
+	for (const mpz_class &ch : m_vecstring) {
+		tmp += ch.get_str() + separator;
 	}
 	return tmp;
 };
