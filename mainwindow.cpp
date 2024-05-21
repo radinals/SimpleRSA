@@ -7,8 +7,6 @@
 #include <QMessageBox>
 #include <utility>
 
-// TODO: Rework the UI Logic
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
