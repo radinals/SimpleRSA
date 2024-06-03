@@ -20,18 +20,18 @@ struct RSAPublicKey {
 class SimpleRSA
 {
       private:
-        static mpz_class randomNumberGenerator(mp_bitcnt_t bits);
-        static mpz_class randomRangeNumberGenerator(const mpz_class& min,
-                                                    const mpz_class& max);
+	static mpz_class randomNumberGenerator(mp_bitcnt_t bits);
+	static mpz_class randomRangeNumberGenerator(const mpz_class& min,
+	                                            const mpz_class& max);
 
-        static unsigned long rand_seed();
+	static unsigned long rand_seed();
 
-        static mpz_class randomPrime(unsigned int bits);
+	static mpz_class randomPrime(unsigned int bits);
 
-        static mpz_class gcd(mpz_class m, mpz_class n);
+	static mpz_class gcd(mpz_class m, mpz_class n);
 
 	static inline mpz_class eulerTotient(const mpz_class& p,
-					     const mpz_class& q)
+	                                     const mpz_class& q)
 	{
 		return (p - 1) * (q - 1);
 	};
@@ -42,8 +42,11 @@ class SimpleRSA
 	};
 
       public:
-        // fermat little theorem check
-        static bool isFermatPrime(const mpz_class& number, unsigned int k = 0);
+	SimpleRSA() = delete;
+	SimpleRSA(SimpleRSA&) = delete;
+
+	// fermat little theorem check
+	static bool isFermatPrime(const mpz_class& number, unsigned int k = 0);
 
 	static std::pair<RSAPublicKey, RSAPrivateKey> generate_key(
 	    unsigned int bits = 128);
@@ -52,18 +55,18 @@ class SimpleRSA
 	    const mpz_class& p, const mpz_class& q);
 
 	static RSAText decrypt(RSAText cyphertext, const mpz_class& d,
-			       const mpz_class& n);
+	                       const mpz_class& n);
 	static RSAText encrypt(RSAText plaintext, const mpz_class& e,
-			       const mpz_class& n);
+	                       const mpz_class& n);
 
 	static inline RSAText decrypt(RSAText cyphertext,
-				      const RSAPrivateKey& private_key)
+	                              const RSAPrivateKey& private_key)
 	{
 		return decrypt(cyphertext, private_key.m_d, private_key.m_n);
 	}
 
 	static inline RSAText encrypt(RSAText plaintext,
-				      const RSAPublicKey& public_key)
+	                              const RSAPublicKey& public_key)
 	{
 		return encrypt(plaintext, public_key.m_e, public_key.m_n);
 	}
